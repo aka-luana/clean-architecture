@@ -2,10 +2,10 @@
 
 namespace CleanArchMvc.Domain.Entities
 {
-    public sealed class Category
+    public sealed class Category : Entity
     {
-        public int Id { get; private set; }
         public string Name { get; private set; }
+        public ICollection<Product> Products { get; set; }
 
         public Category(string name)
         {
@@ -19,7 +19,10 @@ namespace CleanArchMvc.Domain.Entities
             ValidateDomain(name);
         }
 
-        public ICollection<Product> Products { get; set; }
+        public void Update(string name)
+        {
+            ValidateDomain(name);
+        }
 
         private void ValidateDomain(string name)
         {
