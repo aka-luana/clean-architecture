@@ -33,7 +33,7 @@ namespace CleanArchMvc.Application.Services
 
         public async Task<IEnumerable<ProductDTO>> GetProducts()
         {
-            var productsEntity = await _repository.GetProductAsync();
+            var productsEntity = await _repository.GetProductsAsync();
 
             return _mapper.Map<IEnumerable<ProductDTO>>(productsEntity);
         }
