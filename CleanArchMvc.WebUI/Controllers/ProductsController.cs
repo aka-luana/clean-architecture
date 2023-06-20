@@ -24,25 +24,23 @@ namespace CleanArchMvc.WebUI.Controllers
             return View(products);
         }
 
-        [HttpGet]
+        [HttpGet()]
         public async Task<IActionResult> Create()
         {
             ViewBag.CategoryId = new SelectList(await _categoryService.GetCategories(), "Id", "Name");
+
             return View();
         }
 
-        [HttpPost]
+        [HttpPost()]
         public async Task<IActionResult> Create(ProductDTO product)
         {
-            if (ModelState.IsValid || (!ModelState.IsValid && product.Category is null))
+            if (ModelState.IsValid)
             {
                 await _productService.Add(product);
                 return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                ViewBag.CategoryId = new SelectList(await _categoryService.GetCategories(), "Id", "Name");
-            }
+
             return View(product);
         }
     }
