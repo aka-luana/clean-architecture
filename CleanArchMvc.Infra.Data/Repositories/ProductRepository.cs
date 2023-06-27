@@ -28,6 +28,12 @@ namespace CleanArchMvc.Infra.Data.Repositories
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
 
+        // TODO: Verificar se é necessário 
+        public async Task<Product> GetProductCategoryAsync(int? id)
+        {
+            return await _context.Products.Include(c => c.Category).SingleOrDefaultAsync(p => p.Id == id);
+        }
+
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
             return await _context.Products.ToListAsync();

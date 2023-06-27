@@ -9,11 +9,13 @@ namespace CleanArchMvc.WebUI.Controllers
     {
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
+        private readonly IWebHostEnvironment _enviroment;
 
-        public ProductsController(IProductService productService, ICategoryService categoryService)
+        public ProductsController(IProductService productService, ICategoryService categoryService, IWebHostEnvironment enviroment)
         {
             _productService = productService;
             _categoryService = categoryService;
+            _enviroment = enviroment;
         }
 
         [HttpGet]
@@ -35,13 +37,88 @@ namespace CleanArchMvc.WebUI.Controllers
         [HttpPost()]
         public async Task<IActionResult> Create(ProductDTO product)
         {
-            if (ModelState.IsValid)
-            {
+            // if (ModelState.IsValid)
+            // {
                 await _productService.Add(product);
                 return RedirectToAction(nameof(Index));
+            // }
+
+            // return View(product);
+        }
+
+        [HttpGet()]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            System.Console.WriteLine(id);
+            if (id == null) return NotFound();
+
+            var productDto = await _productService.GetById(id);
+
+            if (productDto == null) return NotFound();
+
+            var categories = await _categoryService.GetCategories();
+
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", productDto.CategoryId);
+
+            return View(productDto);
+        }
+
+        [HttpPost()]
+        public async Task<IActionResult> Edit(ProductDTO product)
+        {
+            System.Console.WriteLine("Id post: " + product.CategoryId);
+
+            if (ModelState.IsValid || (!ModelState.IsValid && product.Category is null))
+            {
+                await _productService.Update(product);
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ViewBag.CategoryId = new SelectList(await _categoryService.GetCategories(), "Id", "Name");
             }
 
             return View(product);
+        }
+
+        [HttpGet()]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+            
+            var productDto = await _productService.GetById(id);
+
+            if (productDto == null)
+                return NotFound();
+            
+            return View(productDto);
+        }
+
+        [HttpPost(), ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _productService.Remove(id);
+            
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var productDto = await _productService.GetById(id);
+
+            if (productDto == null)
+                return NotFound();
+
+            var wwwroot = _enviroment.WebRootPath;
+            var image = Path.Combine(wwwroot, "images\\" + productDto.Image);
+            var exists = System.IO.File.Exists(image);
+            ViewBag.ImageExist = exists;
+
+            return View(productDto);
         }
     }
 }
