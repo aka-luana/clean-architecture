@@ -29,7 +29,6 @@ namespace CleanArchMvc.API.Controllers
             if (result)
             {
                 return GenerateToken(userInfo);
-                //return Ok($"User {userInfo.Email} login successfully");
             }
             else
             {
@@ -37,6 +36,24 @@ namespace CleanArchMvc.API.Controllers
                 return BadRequest(ModelState);
             }
         }
+
+        [HttpPost("CreateUser")]
+        [ApiExplorerSettings(IgnoreApi = true)] // Não mostrar no swagger
+        public async Task<ActionResult> CreateUser([FromBody] LoginModel userInfo)
+        {
+            var result = await _authentication.RegisterUser(userInfo.Email, userInfo.Password);
+
+            if (result)
+            {
+                return Ok($"User {userInfo.Email} was created successfully");
+            }
+            else
+            {
+                ModelState.AddModelError(String.Empty, "Invalid create user attempt");
+                return BadRequest(ModelState);
+            }
+        }
+
 
         private UserToken GenerateToken(LoginModel userInfo)
         {
